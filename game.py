@@ -33,7 +33,7 @@ class Game:
       for mob in self.monster:
         mob.update(self.player)
         if (not mob.alive):
-           self.monster.remove(mob)
+          self.monster.remove(mob)
 
     def screencoords(self):
       left = int(max(0, min(LEVEL_W - WIDTH, self.player.vposx - WIDTH / 2)))
