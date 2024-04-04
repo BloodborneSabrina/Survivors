@@ -88,16 +88,22 @@ class Monster(MyActor):
     super().__init__(img, posx, posy, spd)
     self.alive = True
     
-  def update(self,player):
+  def update(self,player,knife):
     # Return vector representing amount of movement that should occur    
     super().update()   
     if (self.colliderect(player)):
       player.hurt(10)
       self.alive = False
+
+    if (self.collidelist(knife)) != -1:
+      print("Soi")
+      self.alive = False
       
 
 class Bat(Monster):
   def __init__(self, screencoords):
+    
+    self.health = 10
 
     LEFT = 0
     TOP = 1
@@ -108,7 +114,9 @@ class Bat(Monster):
     
     if (side == LEFT):
       posx = max(screencoords[LEFT] - 50, 0)
-      posy = random.randint(screencoords[TOP],screencoords[BOTTOM])      
+      #max is used to ensure that enemy will be spawned at the edge of the screen if the screencoords to the left would be negative number.
+      posy = random.randint(screencoords[TOP],screencoords[BOTTOM])   
+      #above line chooses a random number in the range from the top of the screen to the bottom.   
     elif (side == TOP): 
       posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
       posy = max(screencoords[TOP] - 50, 0)
@@ -120,8 +128,13 @@ class Bat(Monster):
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
 
     super().__init__("bat", posx, posy, 1)
-    
-  def update(self,player): 
+  
+  def hurt(self,damage):
+    self.health -= damage
+    if (self.health<=0):
+      self.alive = False
+
+  def update(self,player,knife): 
 
     if (self.vposx > player.vposx):
       self.dx = -1
@@ -136,7 +149,92 @@ class Bat(Monster):
     else:
       self.dy = 0
 
-    super().update(player)   
+    super().update(player,knife)   
 
 
-   
+#taken from monster definitions
+class Weapon(MyActor):
+  def __init__(self, img, posx, posy,spd):
+    
+    super().__init__(img, posx, posy, spd,)
+
+    self.alive = True
+
+  def update(self):
+    
+    # Return vector representing amount of movement that should occur    
+    super().update()   
+    
+
+class Knife(Weapon):
+  
+  
+  #figure out how to get the player pos values and assign them to the weapon when initialised.
+  def __init__(self, x, y):
+    
+    if keyboard.a:
+      self.dirx = -1
+    elif keyboard.d:
+      self.dirx = 1
+    else:
+      self.dirx = 0
+
+    if keyboard.w:
+      self.diry = -1
+    elif keyboard.s:
+      self.diry = 1
+    elif self.dirx != 0:
+      self.diry = 0
+    else:
+      self.diry = 1
+    
+
+    super().__init__("arrow", x, y, 10)
+    
+  
+  #adapted from player update code
+  def update(self):
+    # Return vector representing amount of movement that should occur
+    self.dx = self.dirx
+    self.dy = self.diry
+
+    if self.vposy < 26:
+      self.alive = False
+    if self.vposx > 979:
+      self.alive = False
+    if self.vposx < 21:
+      self.alive = False
+    if self.vposy > 1374:
+      self.alive = False
+    print(self.vposx, self.vposy)
+    super().update()
+
+
+
+
+
+
+
+
+
+
+#class Weapon(MyActor):
+  #def __init__(self, x , y ,player):
+    #super().__init__("bat", x, y, 1)
+    #self.x == player.vposx
+    #self.y == player.vposy
+    #self.alive = True
+  #def update(self,Monster):
+    # Return vector representing amount of movement that should occur    
+    
+    #self.dx = 1
+    #self.dy = 0
+    #if (self.colliderect(Monster)):
+      #Monster.alive = False
+      #self.alive = False
+
+#class tKnife(Weapon):
+  #def __init__(self, player):
+    #posx == player.vposx
+    #posy == player.vposy
+    #super().__init__("bat", posx, posy, 1)

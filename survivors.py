@@ -16,7 +16,6 @@ if pgzero_version < [1,2]:
 
 def update():
     game.update()
-
 def draw():
     game.draw(screen)
 
