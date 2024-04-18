@@ -148,11 +148,118 @@ class Bat(Monster):
       self.dy = 0.5
     else:
       self.dy = 0
+    
 
     super().update(player,knife)   
 
 
-#taken from monster definitions
+class Lion(Monster):
+  def __init__(self, screencoords):
+    self.health = 10
+
+    self.movementTimer = 0
+
+    LEFT = 0
+    TOP = 1
+    RIGHT = 2
+    BOTTOM = 3
+
+    side = random.randint(0,3)    
+    
+    if (side == LEFT):
+      posx = max(screencoords[LEFT] - 50, 0)
+      #max is used to ensure that enemy will be spawned at the edge of the screen if the screencoords to the left would be negative number.
+      posy = random.randint(screencoords[TOP],screencoords[BOTTOM])   
+      #above line chooses a random number in the range from the top of the screen to the bottom.   
+    elif (side == TOP): 
+      posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
+      posy = max(screencoords[TOP] - 50, 0)
+    elif (side == RIGHT): 
+      posx = min(screencoords[RIGHT] + 50, LEVEL_W)
+      posy = random.randint(screencoords[TOP],screencoords[BOTTOM])
+    elif (side == BOTTOM):
+      posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
+      posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
+    super().__init__("bat", posx, posy, 3)
+
+  def hurt(self,damage):
+    self.health -= damage
+    if (self.health<=0):
+      self.alive = False
+
+  def update(self,player,knife): 
+    #use a timer to make sure monster only moves at certain intervals.
+    self.movementTimer += 1
+
+    if self.movementTimer == 90:
+      self.movementTimer = 0
+
+    if self.movementTimer > 31:
+      if (self.vposx > player.vposx):
+        self.dx = -1
+      elif (self.vposx < player.vposx):
+        self.dx = 1
+      else:
+        self.dx = 0
+      if (self.vposy > player.vposy):
+        self.dy = -0.5
+      elif (self.vposx < player.vposy):
+        self.dy = 0.5
+      else:
+        self.dy = 0
+    else:
+      self.dy = 0
+      self.dx = 0
+
+    super().update(player,knife)  
+
+class Totem(Monster):
+
+  def __init__(self, screencoords):
+    self.health = 10
+    self.distance = 0
+
+    LEFT = 0
+    TOP = 1
+    RIGHT = 2
+    BOTTOM = 3
+
+    side = random.randint(0,3)    
+    
+    if (side == LEFT):
+      posx = max(screencoords[LEFT] - 50, 0)
+      #max is used to ensure that enemy will be spawned at the edge of the screen if the screencoords to the left would be negative number.
+      posy = random.randint(screencoords[TOP],screencoords[BOTTOM])   
+      #above line chooses a random number in the range from the top of the screen to the bottom.   
+    elif (side == TOP): 
+      posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
+      posy = max(screencoords[TOP] - 50, 0)
+    elif (side == RIGHT): 
+      posx = min(screencoords[RIGHT] + 50, LEVEL_W)
+      posy = random.randint(screencoords[TOP],screencoords[BOTTOM])
+    elif (side == BOTTOM):
+      posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
+      posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
+    super().__init__("bat", posx, posy, 3)
+
+
+  def hurt(self,damage):
+    self.health -= damage
+    if (self.health<=0):
+      self.alive = False
+
+  def update(self,player,knife): 
+    #use a timer to make sure monster only moves at certain intervals.
+    print(player.vposx)
+
+    self.distance = (player.vposx + player.vposy) - (self.vposx + self.vposy)
+    print(self. distance)
+    
+
+    super().update(player,knife) 
+
+
+
 class Weapon(MyActor):
   def __init__(self, img, posx, posy,spd):
     
@@ -161,13 +268,11 @@ class Weapon(MyActor):
     self.alive = True
 
   def update(self):
-    
-    # Return vector representing amount of movement that should occur    
+      
     super().update()   
     
 
 class Knife(Weapon):
-  
   
   #figure out how to get the player pos values and assign them to the weapon when initialised.
   def __init__(self, x, y):
@@ -178,7 +283,6 @@ class Knife(Weapon):
       self.dirx = 1
     else:
       self.dirx = 0
-
     if keyboard.w:
       self.diry = -1
     elif keyboard.s:
@@ -188,16 +292,15 @@ class Knife(Weapon):
     else:
       self.diry = 1
     
-
+    #initialize with the direction that player is facing, at the players position.
     super().__init__("arrow", x, y, 10)
-    
-  
   #adapted from player update code
   def update(self):
     # Return vector representing amount of movement that should occur
     self.dx = self.dirx
     self.dy = self.diry
 
+    #removes weapon instance once it reaches the edge of the map.
     if self.vposy < 26:
       self.alive = False
     if self.vposx > 979:
@@ -206,9 +309,8 @@ class Knife(Weapon):
       self.alive = False
     if self.vposy > 1374:
       self.alive = False
-    print(self.vposx, self.vposy)
+    
     super().update()
-
 
 
 
