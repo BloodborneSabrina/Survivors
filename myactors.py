@@ -74,7 +74,7 @@ class Player(MyActor):
         self.dy = -1
     elif keyboard.s:
         self.dy = 1
-
+    
     super().update()
 
   def hurt(self,damage):
@@ -250,11 +250,28 @@ class Totem(Monster):
 
   def update(self,player,knife): 
     #use a timer to make sure monster only moves at certain intervals.
-    print(player.vposx)
+    #distance from player = square root of ((x of object - x of player)squared + (y of object - y of player)squared)
+    self.distance = math.sqrt(((self.vposx - player.vposx) ** 2) + ((self.vposy - player.vposy) ** 2))
+    print(self.distance)
 
-    self.distance = (player.vposx + player.vposy) - (self.vposx + self.vposy)
-    print(self. distance)
-    
+    # adjust this value to choose how close the mob should be before it moves towards the player.
+    # if distance from the player is short enough the mob will move towards player as usual.
+    if self.distance < 200:
+      if (self.vposx > player.vposx):
+        self.dx = -1
+      elif (self.vposx < player.vposx):
+        self.dx = 1
+      else:
+        self.dx = 0
+      if (self.vposy > player.vposy):
+        self.dy = -0.5
+      elif (self.vposx < player.vposy):
+        self.dy = 0.5
+      else:
+        self.dy = 0
+    else:
+      self.dy = 0
+      self.dx = 0
 
     super().update(player,knife) 
 

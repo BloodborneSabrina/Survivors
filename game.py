@@ -1,6 +1,6 @@
 import pgzero, pgzrun, pygame
 import math, sys, random
-from myactors import Player, Monster, Bat, Weapon, Knife, Lion
+from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem
 from constants import *
 from pygame.math import Vector2
 
@@ -39,6 +39,7 @@ class Game:
         self.timer = 0
         self.monster.append(Lion(self.screencoords()))
         self.monster.append(Bat(self.screencoords()))
+        self.monster.append(Totem(self.screencoords()))
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
       # checks to see if each mob has died and if so, remove it.
       for mob in self.monster:
