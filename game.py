@@ -1,6 +1,6 @@
 import pgzero, pgzrun, pygame
 import math, sys, random
-from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem
+from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing
 from constants import *
 from pygame.math import Vector2
 
@@ -28,6 +28,21 @@ class Game:
       for mob in self.weapon:
         mob.draw(offset_x, offset_y)
     
+    # find the closest mob to the given x and y values, pass in the list of monsters
+    
+    def findClosest(self, moblist, x, y):
+      
+      closest = WIDTH
+      closestmob= ""
+      for mob in moblist:
+        mob.distance = math.sqrt(((x - mob.vposx) ** 2) + ((y - mob.vposy) ** 2))
+        if mob.distance < closest:
+          closest = mob.distance
+          closestmob = mob
+      return closestmob
+    
+
+    #
     def update(self):
       self.player.update()
 
@@ -35,12 +50,15 @@ class Game:
       self.timer += 1
       
       if (self.timer == 20):
-        
+        closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
         self.timer = 0
         self.monster.append(Lion(self.screencoords()))
         self.monster.append(Bat(self.screencoords()))
         self.monster.append(Totem(self.screencoords()))
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
+        if closestmob:
+          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))
+      
       # checks to see if each mob has died and if so, remove it.
       for mob in self.monster:
         

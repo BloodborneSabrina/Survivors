@@ -61,6 +61,9 @@ class Player(MyActor):
   def __init__(self, x, y):
     self.img = "princess"
     self.health = 100
+    self.xp = 0
+    self.level = 0
+    self.xp_required = 500
     super().__init__(self.img,x,y,5)
 
   def update(self):
@@ -76,13 +79,23 @@ class Player(MyActor):
         self.dy = 1
     
     super().update()
-
+  # is used to process damage from mobs, reduces player health by amount passed in.
   def hurt(self,damage):
     self.health -= damage
     if (self.health<=0):
       print("game over")
-      
-      
+
+  def experience(self, XP):
+    self.xp += XP
+    print("xp=" + str(self.xp))
+#xp required to level up scales exponentially, when the required amount is reached the player level increases.
+#once the level is reached the scaling kicks in and reallocates the required xp amount.
+    if self.xp > self.xp_required:
+      self.level += 1
+      self.xp_required = (self.xp_required * 1.2)
+      self.xp = 0
+      print(self.xp_required)
+      print("lvl" + str(self.level))
 class Monster(MyActor):
   def __init__(self, img, posx, posy,spd):
     super().__init__(img, posx, posy, spd)
@@ -96,7 +109,7 @@ class Monster(MyActor):
       self.alive = False
 
     if (self.collidelist(knife)) != -1:
-      print("Soi")
+      player.experience(25)
       self.alive = False
       
 
@@ -252,7 +265,7 @@ class Totem(Monster):
     #use a timer to make sure monster only moves at certain intervals.
     #distance from player = square root of ((x of object - x of player)squared + (y of object - y of player)squared)
     self.distance = math.sqrt(((self.vposx - player.vposx) ** 2) + ((self.vposy - player.vposy) ** 2))
-    print(self.distance)
+    
 
     # adjust this value to choose how close the mob should be before it moves towards the player.
     # if distance from the player is short enough the mob will move towards player as usual.
@@ -329,8 +342,70 @@ class Knife(Weapon):
     
     super().update()
 
+def findClosest(self, moblist, x, y):
 
+      closest = WIDTH
+      closestmob= ""
+      for mob in moblist:
+        mob.distance = math.sqrt(((x - mob.vposx) ** 2) + ((y - mob.vposy) ** 2))
+        if mob.distance < closest:
+          closest = mob.distance
+          closestmob = mob
+        else:
+          pass
+      return closestmob
+class Homing(Weapon):
+  
+  #figure out how to get the player pos values and assign them to the weapon when initialised.
+  def __init__(self, x, y, mob):
+  
+    #closest = WIDTH
+    #closestmob = ""
 
+    #for mob in moblist:
+      #mob.distance = math.sqrt(((x - mob.vposx) ** 2) + ((y - mob.vposy) ** 2))
+      #if mob.distance < closest:
+        #closest = mob.distance
+        #closestmob = mob
+
+      #print(y)
+    
+    if x < mob.vposx:
+      self.dirx = 1
+    elif x > mob.vposx:
+      self.dirx = -1
+    else:
+      self.dirx = 0
+
+    if y < mob.vposy:
+      self.diry = 1
+    elif y > mob.vposy:
+      self.diry = -1
+    else:
+      self.diry = 0
+    #else:
+      #self.diry = 1
+      #self.dirx = 1
+    #initialize with the direction that player is facing, at the players position.
+    super().__init__("arrow", x, y, 10)
+  #adapted from player update code
+  def update(self):
+    # Return vector representing amount of movement that should occur
+
+    self.dx = self.dirx
+    self.dy = self.diry
+
+    #removes weapon instance once it reaches the edge of the map.
+    if self.vposy < 26:
+      self.alive = False
+    if self.vposx > 979:
+      self.alive = False
+    if self.vposx < 21:
+      self.alive = False
+    if self.vposy > 1374:
+      self.alive = False
+    
+    super().update()
 
 
 
@@ -357,3 +432,17 @@ class Knife(Weapon):
     #posx == player.vposx
     #posy == player.vposy
     #super().__init__("bat", posx, posy, 1)
+
+
+# Powerup class will be used for XP and ofc powerups, similar to an enemy this will just check for collision and then dissapear if detected
+# Need to find a way for this to change some values i.e. adding XP to the player or changing thier speed values, affecting weapon speed or damage ect.
+class Powerup(MyActor):
+  def __init__(self, img, x, y, speed):
+    super().__init__(img, x, y, speed)
+
+  def update(self,player):
+    
+    super().update()
+    if (self.colliderect(player)):
+      
+      self.alive = False
