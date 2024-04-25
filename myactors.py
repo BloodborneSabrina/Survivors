@@ -61,6 +61,7 @@ class Player(MyActor):
   def __init__(self, x, y):
     self.img = "princess"
     self.health = 100
+    
     self.xp = 0
     self.level = 0
     self.xp_required = 500
@@ -82,20 +83,23 @@ class Player(MyActor):
   # is used to process damage from mobs, reduces player health by amount passed in.
   def hurt(self,damage):
     self.health -= damage
+    #print(self.health)
     if (self.health<=0):
       print("game over")
+    if (self.health >= 100):
+      self.health = 100
 
   def experience(self, XP):
     self.xp += XP
-    print("xp=" + str(self.xp))
+    #print("xp=" + str(self.xp))
 #xp required to level up scales exponentially, when the required amount is reached the player level increases.
 #once the level is reached the scaling kicks in and reallocates the required xp amount.
     if self.xp > self.xp_required:
       self.level += 1
       self.xp_required = (self.xp_required * 1.2)
       self.xp = 0
-      print(self.xp_required)
-      print("lvl" + str(self.level))
+      #print(self.xp_required)
+      #print("lvl" + str(self.level))
 class Monster(MyActor):
   def __init__(self, img, posx, posy,spd):
     super().__init__(img, posx, posy, spd)
@@ -105,7 +109,7 @@ class Monster(MyActor):
     # Return vector representing amount of movement that should occur    
     super().update()   
     if (self.colliderect(player)):
-      player.hurt(10)
+      player.hurt(self.damage)
       self.alive = False
 
     if (self.collidelist(knife)) != -1:
@@ -115,7 +119,7 @@ class Monster(MyActor):
 
 class Bat(Monster):
   def __init__(self, screencoords):
-    
+    self.damage = 10
     self.health = 10
 
     LEFT = 0
@@ -169,7 +173,7 @@ class Bat(Monster):
 class Lion(Monster):
   def __init__(self, screencoords):
     self.health = 10
-
+    self.damage = 10
     self.movementTimer = 0
 
     LEFT = 0
@@ -231,6 +235,7 @@ class Totem(Monster):
   def __init__(self, screencoords):
     self.health = 10
     self.distance = 0
+    self.damage = 10
 
     LEFT = 0
     TOP = 1
@@ -407,11 +412,6 @@ class Homing(Weapon):
     
     super().update()
 
-
-
-
-
-
 #class Weapon(MyActor):
   #def __init__(self, x , y ,player):
     #super().__init__("bat", x, y, 1)
@@ -437,12 +437,36 @@ class Homing(Weapon):
 # Powerup class will be used for XP and ofc powerups, similar to an enemy this will just check for collision and then dissapear if detected
 # Need to find a way for this to change some values i.e. adding XP to the player or changing thier speed values, affecting weapon speed or damage ect.
 class Powerup(MyActor):
-  def __init__(self, img, x, y, speed):
-    super().__init__(img, x, y, speed)
+  def __init__(self, img, posx, posy,spd):
 
-  def update(self,player):
+    super().__init__(img, posx, posy, spd)
+    self.alive = True
+
+  def update(self, player):
     
     super().update()
+    
+
+class Health(Powerup):
+  def __init__(self):
+    
+    x = random.randint(21,979)
+    y = random.randint(26,1374)
+    #self.posx = x
+    #self.posy = y
+    super().__init__("bat", x, y, 0)
+
+  def update(self,player):
+    #if (self.colliderect(player)):
     if (self.colliderect(player)):
-      
+      player.hurt(-50)
       self.alive = False
+      
+    super().update(player)
+
+#min vposy =26:
+#max vposy = 1374:
+#max vposx = 979:     
+#min vposx = 21:
+
+      

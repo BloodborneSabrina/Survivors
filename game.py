@@ -1,6 +1,6 @@
 import pgzero, pgzrun, pygame
 import math, sys, random
-from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing
+from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health
 from constants import *
 from pygame.math import Vector2
 
@@ -8,7 +8,7 @@ class Game:
     def __init__(self):
         self.player = Player(HALF_LEVEL_W, HALF_LEVEL_H)
         self.monster = []
-        
+        self.powerups = []
         self.weapon = []
         
         self.timer = 0
@@ -26,6 +26,9 @@ class Game:
         mob.draw(offset_x, offset_y)
 
       for mob in self.weapon:
+        mob.draw(offset_x, offset_y)
+
+      for mob in self.powerups:
         mob.draw(offset_x, offset_y)
     
     # find the closest mob to the given x and y values, pass in the list of monsters
@@ -56,6 +59,8 @@ class Game:
         self.monster.append(Bat(self.screencoords()))
         self.monster.append(Totem(self.screencoords()))
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
+        self.powerups.append(Health())
+        
         if closestmob:
           self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))
       
@@ -71,6 +76,10 @@ class Game:
         if (not knife.alive):
           self.weapon.remove(knife)
       
+      for pup in self.powerups:
+        pup.update(self.player)
+        if (not pup.alive):
+          self.powerups.remove(pup)
 
     def screencoords(self):
       left = int(max(0, min(LEVEL_W - WIDTH, self.player.vposx - WIDTH / 2)))
