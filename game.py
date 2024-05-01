@@ -48,7 +48,7 @@ class Game:
     #
     def update(self):
       self.player.update()
-
+      print(self.player.vposy)
       # each time the timer hits 20 a new monster is added to self.monster, i.e another monster is spawned
       self.timer += 1
       

@@ -342,7 +342,7 @@ class Knife(Weapon):
       self.alive = False
     if self.vposx < 21:
       self.alive = False
-    if self.vposy > 975:
+    if self.vposy > 974:
       self.alive = False
     
     super().update()
@@ -407,31 +407,10 @@ class Homing(Weapon):
       self.alive = False
     if self.vposx < 21:
       self.alive = False
-    if self.vposy > 975:
+    if self.vposy > 974:
       self.alive = False
     
     super().update()
-
-#class Weapon(MyActor):
-  #def __init__(self, x , y ,player):
-    #super().__init__("bat", x, y, 1)
-    #self.x == player.vposx
-    #self.y == player.vposy
-    #self.alive = True
-  #def update(self,Monster):
-    # Return vector representing amount of movement that should occur    
-    
-    #self.dx = 1
-    #self.dy = 0
-    #if (self.colliderect(Monster)):
-      #Monster.alive = False
-      #self.alive = False
-
-#class tKnife(Weapon):
-  #def __init__(self, player):
-    #posx == player.vposx
-    #posy == player.vposy
-    #super().__init__("bat", posx, posy, 1)
 
 
 # Powerup class will be used for XP and ofc powerups, similar to an enemy this will just check for collision and then dissapear if detected
