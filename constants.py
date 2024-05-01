@@ -5,7 +5,7 @@ HALF_WINDOW_H = HEIGHT / 2
 
 # Size of level, including both the pitch and the boundary surrounding it
 LEVEL_W = 1000
-LEVEL_H = 1400
+LEVEL_H = 1000
 HALF_LEVEL_W = LEVEL_W // 2
 HALF_LEVEL_H = LEVEL_H // 2
 

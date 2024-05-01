@@ -19,7 +19,7 @@ class Game:
       offset_y = max(0, min(LEVEL_H - HEIGHT, self.player.vposy - HEIGHT / 2))
       offset = Vector2(offset_x, offset_y)
 
-      screen.blit("pitch", (-offset_x, -offset_y))
+      screen.blit("grassday2", (-offset_x, -offset_y))
 
       self.player.draw(offset_x, offset_y)
       for mob in self.monster:
@@ -62,8 +62,7 @@ class Game:
         self.powerups.append(Health())
         
         if closestmob:
-          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))
-      
+          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
       # checks to see if each mob has died and if so, remove it.
       for mob in self.monster:
         

@@ -161,7 +161,7 @@ class Bat(Monster):
         self.dx = 0
     if (self.vposy > player.vposy):
       self.dy = -0.5
-    elif (self.vposx < player.vposy):
+    elif (self.vposy < player.vposy):
       self.dy = 0.5
     else:
       self.dy = 0
@@ -220,7 +220,7 @@ class Lion(Monster):
         self.dx = 0
       if (self.vposy > player.vposy):
         self.dy = -0.5
-      elif (self.vposx < player.vposy):
+      elif (self.vposy < player.vposy):
         self.dy = 0.5
       else:
         self.dy = 0
@@ -283,7 +283,7 @@ class Totem(Monster):
         self.dx = 0
       if (self.vposy > player.vposy):
         self.dy = -0.5
-      elif (self.vposx < player.vposy):
+      elif (self.vposy < player.vposy):
         self.dy = 0.5
       else:
         self.dy = 0
@@ -342,7 +342,7 @@ class Knife(Weapon):
       self.alive = False
     if self.vposx < 21:
       self.alive = False
-    if self.vposy > 1374:
+    if self.vposy > 975:
       self.alive = False
     
     super().update()
@@ -407,7 +407,7 @@ class Homing(Weapon):
       self.alive = False
     if self.vposx < 21:
       self.alive = False
-    if self.vposy > 1374:
+    if self.vposy > 975:
       self.alive = False
     
     super().update()
@@ -451,7 +451,7 @@ class Health(Powerup):
   def __init__(self):
     
     x = random.randint(21,979)
-    y = random.randint(26,1374)
+    y = random.randint(26,975)
     #self.posx = x
     #self.posy = y
     super().__init__("bat", x, y, 0)
