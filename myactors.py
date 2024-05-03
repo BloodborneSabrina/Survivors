@@ -85,7 +85,8 @@ class Player(MyActor):
     self.health -= damage
     #print(self.health)
     if (self.health<=0):
-      print("game over")
+      #print("game over")
+      State = 3
     if (self.health >= 100):
       self.health = 100
 

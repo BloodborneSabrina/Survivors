@@ -3,7 +3,8 @@ import math, sys, random
 from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health
 from constants import *
 from pygame.math import Vector2
-
+from enum import Enum
+from pgzero.builtins import Actor, keyboard, keys
 class Game:
     def __init__(self):
         self.player = Player(HALF_LEVEL_W, HALF_LEVEL_H)
@@ -45,10 +46,10 @@ class Game:
       return closestmob
     
 
-    #
+    # updates will only happen when the game is NOT in the pause state which is triggered every time the player levels up and can upgrade or acquire a weapon. 
     def update(self):
       self.player.update()
-      print(self.player.vposy)
+      
       # each time the timer hits 20 a new monster is added to self.monster, i.e another monster is spawned
       self.timer += 1
       
@@ -59,10 +60,10 @@ class Game:
         self.monster.append(Bat(self.screencoords()))
         self.monster.append(Totem(self.screencoords()))
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
-        self.powerups.append(Health())
+        #self.powerups.append(Health())
         
-        if closestmob:
-          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
+        #if closestmob:
+          #self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
       # checks to see if each mob has died and if so, remove it.
       for mob in self.monster:
         
@@ -87,4 +88,5 @@ class Game:
       bottom = int(max(0, min(LEVEL_H + HEIGHT, self.player.vposy + HEIGHT / 2)))
       coords = [left, top, right, bottom]          
       return coords
+
 
