@@ -31,7 +31,7 @@ def update():
     
     
     if state == State.MENU:
-        print("menu")
+        #print("menu")
         
         if space_pressed:
             # Switch to play state, and create a new Game object, passing it the controls function for
@@ -42,17 +42,29 @@ def update():
             state = State.PLAY
             
     elif state == State.PLAY:
-        # Has anyone won?
-        
+        ## when player health hits 0 trigger game over state.       
         if game.player.health == 0:
             state = State.GAME_OVER
-        #if game.player.leveluptrigger == True:
-            #state = State.PAUSED
+        ## when the player levels up trigger the pause state.
+        if game.player.leveluptrigger == True:
+            game.player.leveluptrigger = False
+            #print("level up trigger")
+            state = State.PAUSED
         else:
             game.update()
 
-        
-        
+    elif state == State.PAUSED:
+        #print("pausa")
+        #if space_pressed:
+            # Reset to menu state
+            #state = State.PLAY
+        if keyboard.K_1:
+            state = State.PLAY
+        if keyboard.K_2:
+            state = State.PLAY
+        if keyboard.K_3:
+            state = State.PLAY
+            
 
     elif state == State.GAME_OVER:
         if space_pressed:

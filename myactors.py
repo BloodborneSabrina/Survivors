@@ -14,7 +14,7 @@ class MyActor(Actor):
     self.timer = 0    
     self.olddx = -100
     self.olddirection = -100
-
+    self.state = 1,1,1
   def update(self):
 
     self.timer += 1
@@ -61,7 +61,7 @@ class Player(MyActor):
   def __init__(self, x, y):
     self.img = "princess"
     self.health = 100
-    
+    self.leveluptrigger = False
     self.xp = 0
     self.level = 0
     self.xp_required = 500
@@ -78,15 +78,13 @@ class Player(MyActor):
         self.dy = -1
     elif keyboard.s:
         self.dy = 1
-    
+    #print(self.level)
     super().update()
   # is used to process damage from mobs, reduces player health by amount passed in.
   def hurt(self,damage):
     self.health -= damage
     #print(self.health)
-    if (self.health<=0):
-      #print("game over")
-      State = 3
+    
     if (self.health >= 100):
       self.health = 100
 
@@ -97,8 +95,10 @@ class Player(MyActor):
 #once the level is reached the scaling kicks in and reallocates the required xp amount.
     if self.xp > self.xp_required:
       self.level += 1
+      
       self.xp_required = (self.xp_required * 1.2)
       self.xp = 0
+      self.leveluptrigger = True
       #print(self.xp_required)
       #print("lvl" + str(self.level))
 class Monster(MyActor):
@@ -119,9 +119,10 @@ class Monster(MyActor):
       
 
 class Bat(Monster):
-  def __init__(self, screencoords):
+  def __init__(self, screencoords, wave):
     self.damage = 10
     self.health = 10
+    self.mode = wave
 
     LEFT = 0
     TOP = 1
@@ -153,29 +154,36 @@ class Bat(Monster):
       self.alive = False
 
   def update(self,player,knife): 
-
-    if (self.vposx > player.vposx):
-      self.dx = -1
-    elif (self.vposx < player.vposx):
-      self.dx = 1
+    # if self.wave = even:
+    if self.mode % 2 == 0:
+      pass
+      # if self.wave = odd:
     else:
+      if (self.vposx > player.vposx):
+        self.dx = -1
+      elif (self.vposx < player.vposx):
+        self.dx = 1
+      else:
         self.dx = 0
-    if (self.vposy > player.vposy):
-      self.dy = -0.5
-    elif (self.vposy < player.vposy):
-      self.dy = 0.5
-    else:
-      self.dy = 0
+      if (self.vposy > player.vposy):
+        self.dy = -0.5
+      elif (self.vposy < player.vposy):
+        self.dy = 0.5
+      else:
+        self.dy = 0
+    
+
     
 
     super().update(player,knife)   
 
 
 class Lion(Monster):
-  def __init__(self, screencoords):
+  def __init__(self, screencoords, wave):
     self.health = 10
     self.damage = 10
     self.movementTimer = 0
+    self.mode = wave
 
     LEFT = 0
     TOP = 1
@@ -211,32 +219,43 @@ class Lion(Monster):
 
     if self.movementTimer == 90:
       self.movementTimer = 0
-
-    if self.movementTimer > 31:
-      if (self.vposx > player.vposx):
-        self.dx = -1
-      elif (self.vposx < player.vposx):
-        self.dx = 1
-      else:
-        self.dx = 0
-      if (self.vposy > player.vposy):
-        self.dy = -0.5
-      elif (self.vposy < player.vposy):
-        self.dy = 0.5
+    # if self.wave = even:
+    
+    if self.mode % 2 == 0:
+      pass
+    # if self.wave = odd:
+    else: 
+      if self.movementTimer > 31:
+        if (self.vposx > player.vposx):
+          self.dx = -1
+        elif (self.vposx < player.vposx):
+          self.dx = 1
+        else:
+          self.dx = 0
+        if (self.vposy > player.vposy):
+          self.dy = -0.5
+        elif (self.vposy < player.vposy):
+          self.dy = 0.5
+        else:
+          self.dy = 0
       else:
         self.dy = 0
-    else:
-      self.dy = 0
-      self.dx = 0
+        self.dx = 0
+
+    
 
     super().update(player,knife)  
 
 class Totem(Monster):
 
-  def __init__(self, screencoords):
+  def __init__(self, screencoords, wave):
     self.health = 10
     self.distance = 0
-    self.damage = 10
+    if wave == 0:
+      self.damage = 10
+    if wave == 1: 
+      self.damage = 20
+    self.mode = wave
 
     LEFT = 0
     TOP = 1
@@ -275,22 +294,43 @@ class Totem(Monster):
 
     # adjust this value to choose how close the mob should be before it moves towards the player.
     # if distance from the player is short enough the mob will move towards player as usual.
-    if self.distance < 200:
-      if (self.vposx > player.vposx):
-        self.dx = -1
-      elif (self.vposx < player.vposx):
-        self.dx = 1
-      else:
-        self.dx = 0
-      if (self.vposy > player.vposy):
-        self.dy = -0.5
-      elif (self.vposy < player.vposy):
-        self.dy = 0.5
+    # if mode is even
+    if self.mode % 2 == 0:
+      if self.distance < 200:
+        if (self.vposx > player.vposx):
+          self.dx = -1
+        elif (self.vposx < player.vposx):
+          self.dx = 1
+        else:
+          self.dx = 0
+        if (self.vposy > player.vposy):
+          self.dy = -0.5
+        elif (self.vposy < player.vposy):
+          self.dy = 0.5
+        else:
+          self.dy = 0
       else:
         self.dy = 0
+        self.dx = 0
+    #if mode is odd
     else:
-      self.dy = 0
-      self.dx = 0
+      if self.distance < 200:
+        if (self.vposx > player.vposx):
+          self.dx = -1
+        elif (self.vposx < player.vposx):
+          self.dx = 1
+        else:
+          self.dx = 0
+        if (self.vposy > player.vposy):
+          self.dy = -0.5
+        elif (self.vposy < player.vposy):
+          self.dy = 0.5
+        else:
+          self.dy = 0
+      else:
+        self.dy = 0
+        self.dx = 0
+
 
     super().update(player,knife) 
 

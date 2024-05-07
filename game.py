@@ -13,6 +13,9 @@ class Game:
         self.weapon = []
         
         self.timer = 0
+        self.gametime = 0
+        self.wave = 1 
+        self.seconds = 1
         
     
     def draw(self,screen):
@@ -50,20 +53,30 @@ class Game:
     def update(self):
       self.player.update()
       
-      # each time the timer hits 20 a new monster is added to self.monster, i.e another monster is spawned
+      # timer for internal stuff and second timer to count seconds
       self.timer += 1
-      
+      self.gametime += 1
+      # each time a second passes add one to the counter anc begin counting again
+      if (self.gametime == 60):
+        self.seconds += 1 
+        self.gametime = 0
+      # every minute add one to wave.
+      if (self.seconds == 60):
+        self.wave += 1
+
+# each time the timer hits 20 a new monster is added to self.monster, i.e another monster is spawned
+# pass in wave value to monsters to spawn powered up mobs.
       if (self.timer == 20):
         closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
         self.timer = 0
-        self.monster.append(Lion(self.screencoords()))
-        self.monster.append(Bat(self.screencoords()))
-        self.monster.append(Totem(self.screencoords()))
+        self.monster.append(Lion(self.screencoords(), self.wave))
+        self.monster.append(Bat(self.screencoords(), self.wave))
+        self.monster.append(Totem(self.screencoords(), self.wave))
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
         #self.powerups.append(Health())
         
-        #if closestmob:
-          #self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
+        if closestmob:
+          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
       # checks to see if each mob has died and if so, remove it.
       for mob in self.monster:
         
