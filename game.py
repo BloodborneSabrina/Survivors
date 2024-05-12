@@ -14,8 +14,10 @@ class Game:
         
         self.timer = 0
         self.gametime = 0
-        self.wave = 1 
-        self.seconds = 1
+        self.wave = 0 
+        self.seconds = 0
+
+
         
     
     def draw(self,screen):
@@ -25,7 +27,12 @@ class Game:
 
       screen.blit("grassday2", (-offset_x, -offset_y))
 
+      hp_bar = int(self.player.health / 10)
+
       self.player.draw(offset_x, offset_y)
+      hp_status = "hp-" + str(hp_bar)
+      screen.blit(hp_status, ((self.player.x - 10), (self.player.y - 10)))
+
       for mob in self.monster:
         mob.draw(offset_x, offset_y)
 
@@ -34,6 +41,13 @@ class Game:
 
       for mob in self.powerups:
         mob.draw(offset_x, offset_y)
+
+      #time = str(self.wave) + ":" + str(self.seconds)
+      #imgmins = "digit1" + str(self.wave)
+      #screen.blit(imgmins, (0, 0))
+      #for i in 
+
+
     
     # find the closest mob to the given x and y values, pass in the list of monsters
     
@@ -52,20 +66,21 @@ class Game:
     # updates will only happen when the game is NOT in the pause state which is triggered every time the player levels up and can upgrade or acquire a weapon. 
     def update(self):
       self.player.update()
-      
-      # timer for internal stuff and second timer to count seconds
+      ## hp_bar = self.player.health / 10
+      ## print(hp_bar)
+      ## timer for internal stuff and second timer to count seconds
       self.timer += 1
       self.gametime += 1
-      # each time a second passes add one to the counter anc begin counting again
-      if (self.gametime == 60):
+      ## each time a second passes add one to the counter and begin counting again
+      if (self.gametime == 60): 
         self.seconds += 1 
-        self.gametime = 0
-      # every minute add one to wave.
+        self.gametime = 0 
+      ## every minute add one to wave.
       if (self.seconds == 60):
-        self.wave += 1
+        self.wave += 1 
 
-# each time the timer hits 20 a new monster is added to self.monster, i.e another monster is spawned
-# pass in wave value to monsters to spawn powered up mobs.
+## each time the timer hits 20 a new monster is added to self.monster, i.e another monster is spawned
+## pass in wave value to monsters to spawn powered up mobs.
       if (self.timer == 20):
         closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
         self.timer = 0
@@ -73,11 +88,11 @@ class Game:
         self.monster.append(Bat(self.screencoords(), self.wave))
         self.monster.append(Totem(self.screencoords(), self.wave))
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
-        #self.powerups.append(Health())
+        ## self.powerups.append(Health())
         
         if closestmob:
           self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
-      # checks to see if each mob has died and if so, remove it.
+      ## checks to see if each mob has died and if so, remove it.
       for mob in self.monster:
         
         mob.update(self.player, self.weapon)

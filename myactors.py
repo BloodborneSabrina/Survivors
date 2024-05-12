@@ -64,7 +64,7 @@ class Player(MyActor):
     self.leveluptrigger = False
     self.xp = 0
     self.level = 0
-    self.xp_required = 500
+    self.xp_required = 600
     super().__init__(self.img,x,y,5)
 
   def update(self):
@@ -90,13 +90,13 @@ class Player(MyActor):
 
   def experience(self, XP):
     self.xp += XP
-    #print("xp=" + str(self.xp))
-#xp required to level up scales exponentially, when the required amount is reached the player level increases.
-#once the level is reached the scaling kicks in and reallocates the required xp amount.
+    ## print("xp=" + str(self.xp))
+    ## xp required to level up scales exponentially, when the required amount is reached the player level increases.
+    ## once the level is reached the scaling kicks in and reallocates the required xp amount.
     if self.xp > self.xp_required:
       self.level += 1
       
-      self.xp_required = (self.xp_required * 1.2)
+      self.xp_required = (self.xp_required * 1.6)
       self.xp = 0
       self.leveluptrigger = True
       #print(self.xp_required)
@@ -369,7 +369,7 @@ class Knife(Weapon):
       self.diry = 1
     
     #initialize with the direction that player is facing, at the players position.
-    super().__init__("arrow", x, y, 10)
+    super().__init__("basic_pink", x, y, 10)
   #adapted from player update code
   def update(self):
     # Return vector representing amount of movement that should occur
@@ -433,7 +433,7 @@ class Homing(Weapon):
       #self.diry = 1
       #self.dirx = 1
     #initialize with the direction that player is facing, at the players position.
-    super().__init__("arrow", x, y, 10)
+    super().__init__("basic_blue", x, y, 10)
   #adapted from player update code
   def update(self):
     # Return vector representing amount of movement that should occur
