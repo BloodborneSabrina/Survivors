@@ -1,6 +1,6 @@
 import pgzero, pgzrun, pygame
 import math, sys, random
-from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health
+from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health , Shield , Double_XP , Strong_attacks
 from constants import *
 from pygame.math import Vector2
 from enum import Enum
@@ -11,7 +11,8 @@ class Game:
         self.monster = []
         self.powerups = []
         self.weapon = []
-        
+        ## gamestate values correspond to: stronger attack toggle, faster attack toggle, xp pup toggle, shield toggle
+        ## self.gamestate = [0,0,0,0]
         self.timer = 0
         self.gametime = 0
         self.wave = 0 
@@ -24,8 +25,12 @@ class Game:
       offset_x = max(0, min(LEVEL_W - WIDTH, self.player.vposx - WIDTH / 2))
       offset_y = max(0, min(LEVEL_H - HEIGHT, self.player.vposy - HEIGHT / 2))
       offset = Vector2(offset_x, offset_y)
-
-      screen.blit("grassday2", (-offset_x, -offset_y))
+      # if self.wave = even:
+      if self.wave % 2 == 0:
+        screen.blit("grassday2", (-offset_x, -offset_y))
+      else:
+        # different map for time of day change. 
+        screen.blit("grass-day", (-offset_x, -offset_y))
 
       hp_bar = int(self.player.health / 10)
 
@@ -66,6 +71,11 @@ class Game:
     # updates will only happen when the game is NOT in the pause state which is triggered every time the player levels up and can upgrade or acquire a weapon. 
     def update(self):
       self.player.update()
+      ## powerup timers are reduced if they are activated, this occurs for each powerup.
+      if self.player.shield == True:
+        self.player.shield_timer -= 1
+      if self.player.double_xp == True:
+        self.player.double_xp_timer -= 1
       ## hp_bar = self.player.health / 10
       ## print(hp_bar)
       ## timer for internal stuff and second timer to count seconds
@@ -77,18 +87,20 @@ class Game:
         self.gametime = 0 
       ## every minute add one to wave.
       if (self.seconds == 60):
+        self.seconds = 0 
         self.wave += 1 
-
 ## each time the timer hits 20 a new monster is added to self.monster, i.e another monster is spawned
 ## pass in wave value to monsters to spawn powered up mobs.
       if (self.timer == 20):
+        Pup = [Health, Shield, Double_XP, Strong_attacks]
+        
         closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
         self.timer = 0
         self.monster.append(Lion(self.screencoords(), self.wave))
         self.monster.append(Bat(self.screencoords(), self.wave))
         self.monster.append(Totem(self.screencoords(), self.wave))
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
-        ## self.powerups.append(Health())
+        self.powerups.append(random.choice(Pup)())
         
         if closestmob:
           self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
@@ -97,8 +109,7 @@ class Game:
         
         mob.update(self.player, self.weapon)
         if (not mob.alive):
-          self.monster.remove(mob)
-      # checks to see if each weapon has died and if so, remove it.
+          self.monster.remove(mob)     # checks to see if each weapon has died and if so, remove it.
       for knife in self.weapon:
         knife.update()
         if (not knife.alive):

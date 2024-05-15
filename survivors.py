@@ -38,7 +38,7 @@ def update():
         if space_pressed:
         ## Switch to play state, and create a new Game object, passing it the controls function for
         ## player 1, and if we're in 2 player mode, the controls function for player 2 (otherwise the
-        ## 'None' value indicating this player should be computer-controlled)
+        ## 'None' value indicating this player should be computer-controlled)a
             state = State.PLAY
             
     elif state == State.PLAY:
@@ -57,7 +57,7 @@ def update():
     ## print("pausa")
     ## if space_pressed:
     ## Reset to menu state
-    ## state = State.PLAY
+    ## state = State.PLAYaddddaaasa
         
         if keyboard.K_1:
 

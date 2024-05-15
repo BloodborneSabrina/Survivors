@@ -2,6 +2,8 @@ from pgzero.builtins import Actor, keyboard, keys
 import math, sys, random
 from constants import *
 
+## global damage variable used by player and monsters (corresponds to how much damage weapons will do)
+Damage = 0
 class MyActor(Actor):
   def __init__(self,img,x,y,speed):
     self.myimg = img
@@ -65,10 +67,31 @@ class Player(MyActor):
     self.xp = 0
     self.level = 0
     self.xp_required = 600
+    #global Damage = 5
+    ##
+    self.shield_timer = 0 
+    self.shield = False
+
+    self.double_xp = False
+    self.double_xp_timer = 0
+
+    self.Strong_attacks = False
+    self.Strong_attacks_timer = 0
+
+    self.fast_attacks = False
+    self.strong_attacks = False
+    
+    self.double_xp = False
     super().__init__(self.img,x,y,5)
 
   def update(self):
     # Return vector representing amount of movement that should occur
+    #self.timer -= 1
+    if self.shield_timer == 0:
+      self.shield = False
+    
+
+
     self.dx, self.dy = 0, 0
     if keyboard.a:
         self.dx = -1
@@ -82,14 +105,19 @@ class Player(MyActor):
     super().update()
   # is used to process damage from mobs, reduces player health by amount passed in.
   def hurt(self,damage):
-    self.health -= damage
+    if self.shield == False:
+      self.health -= damage
     #print(self.health)
-    
+  def heal (self,healing):
+    self.health += healing
     if (self.health >= 100):
       self.health = 100
-
+  ## if double xp is active double each gained xp amount.
   def experience(self, XP):
-    self.xp += XP
+    if self.double_xp == True:
+      self.xp += (XP * 2)
+    else:
+      self.xp += XP
     ## print("xp=" + str(self.xp))
     ## xp required to level up scales exponentially, when the required amount is reached the player level increases.
     ## once the level is reached the scaling kicks in and reallocates the required xp amount.
@@ -105,7 +133,11 @@ class Monster(MyActor):
   def __init__(self, img, posx, posy,spd):
     super().__init__(img, posx, posy, spd)
     self.alive = True
-    
+  def hurt(self):
+    self.health -= damage
+    if (self.health<=0):
+      self.alive = False
+  
   def update(self,player,knife):
     # Return vector representing amount of movement that should occur    
     super().update()   
@@ -114,15 +146,23 @@ class Monster(MyActor):
       self.alive = False
 
     if (self.collidelist(knife)) != -1:
-      player.experience(25)
+      #self.hurt()
       self.alive = False
+      player.experience(25)
+      
+      
       
 
 class Bat(Monster):
   def __init__(self, screencoords, wave):
-    self.damage = 10
-    self.health = 10
     self.mode = wave
+    # if self.wave = even:
+    if self.mode % 2 == 0:
+      self.damage = 10
+      self.health = 10
+    else:
+      self.damage = 15
+      self.health = 20
 
     LEFT = 0
     TOP = 1
@@ -148,17 +188,14 @@ class Bat(Monster):
 
     super().__init__("bat", posx, posy, 1)
   
-  def hurt(self,damage):
-    self.health -= damage
-    if (self.health<=0):
-      self.alive = False
+  #def hurt(self):
+    #self.health -= self.player.damage
+    #if (self.health <= 0):
+      #self.alive = False
 
   def update(self,player,knife): 
     # if self.wave = even:
     if self.mode % 2 == 0:
-      pass
-      # if self.wave = odd:
-    else:
       if (self.vposx > player.vposx):
         self.dx = -1
       elif (self.vposx < player.vposx):
@@ -166,9 +203,23 @@ class Bat(Monster):
       else:
         self.dx = 0
       if (self.vposy > player.vposy):
-        self.dy = -0.5
+        self.dy = -0.75
       elif (self.vposy < player.vposy):
-        self.dy = 0.5
+        self.dy = 0.75
+      else:
+        self.dy = 0
+      # if self.wave = odd:
+    else:
+      if (self.vposx > player.vposx):
+        self.dx = -1.3
+      elif (self.vposx < player.vposx):
+        self.dx = 1.3
+      else:
+        self.dx = 0
+      if (self.vposy > player.vposy):
+        self.dy = -1
+      elif (self.vposy < player.vposy):
+        self.dy = 1
       else:
         self.dy = 0
     
@@ -180,10 +231,15 @@ class Bat(Monster):
 
 class Lion(Monster):
   def __init__(self, screencoords, wave):
-    self.health = 10
-    self.damage = 10
-    self.movementTimer = 0
     self.mode = wave
+    # if self.wave = even:
+    if self.mode % 2 == 0:
+      self.damage = 10
+      self.health = 10
+    else:
+      self.damage = 20
+      self.health = 15
+    self.movementTimer = 0
 
     LEFT = 0
     TOP = 1
@@ -208,11 +264,8 @@ class Lion(Monster):
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
     super().__init__("bat", posx, posy, 3)
 
-  def hurt(self,damage):
-    self.health -= damage
-    if (self.health<=0):
-      self.alive = False
-
+  
+      
   def update(self,player,knife): 
     #use a timer to make sure monster only moves at certain intervals.
     self.movementTimer += 1
@@ -222,9 +275,6 @@ class Lion(Monster):
     # if self.wave = even:
     
     if self.mode % 2 == 0:
-      pass
-    # if self.wave = odd:
-    else: 
       if self.movementTimer > 31:
         if (self.vposx > player.vposx):
           self.dx = -1
@@ -233,9 +283,27 @@ class Lion(Monster):
         else:
           self.dx = 0
         if (self.vposy > player.vposy):
-          self.dy = -0.5
+          self.dy = -0.75
         elif (self.vposy < player.vposy):
-          self.dy = 0.5
+          self.dy = 0.75
+        else:
+          self.dy = 0
+      else:
+        self.dy = 0
+        self.dx = 0
+    # if self.wave = odd:
+    else: 
+      if self.movementTimer > 31:
+        if (self.vposx > player.vposx):
+          self.dx = -2
+        elif (self.vposx < player.vposx):
+          self.dx = 2
+        else:
+          self.dx = 0
+        if (self.vposy > player.vposy):
+          self.dy = -1.5
+        elif (self.vposy < player.vposy):
+          self.dy = 1.5
         else:
           self.dy = 0
       else:
@@ -249,13 +317,14 @@ class Lion(Monster):
 class Totem(Monster):
 
   def __init__(self, screencoords, wave):
-    self.health = 10
-    self.distance = 0
-    if wave == 0:
-      self.damage = 10
-    if wave == 1: 
-      self.damage = 20
     self.mode = wave
+    # if self.wave = even:
+    if self.mode % 2 == 0:
+      self.damage = 15
+      self.health = 15
+    else:
+      self.damage = 15
+      self.health = 30
 
     LEFT = 0
     TOP = 1
@@ -281,11 +350,7 @@ class Totem(Monster):
     super().__init__("bat", posx, posy, 3)
 
 
-  def hurt(self,damage):
-    self.health -= damage
-    if (self.health<=0):
-      self.alive = False
-
+  
   def update(self,player,knife): 
     #use a timer to make sure monster only moves at certain intervals.
     #distance from player = square root of ((x of object - x of player)squared + (y of object - y of player)squared)
@@ -304,9 +369,9 @@ class Totem(Monster):
         else:
           self.dx = 0
         if (self.vposy > player.vposy):
-          self.dy = -0.5
+          self.dy = -0.75
         elif (self.vposy < player.vposy):
-          self.dy = 0.5
+          self.dy = 0.75
         else:
           self.dy = 0
       else:
@@ -314,7 +379,7 @@ class Totem(Monster):
         self.dx = 0
     #if mode is odd
     else:
-      if self.distance < 200:
+      if self.distance < 350:
         if (self.vposx > player.vposx):
           self.dx = -1
         elif (self.vposx < player.vposx):
@@ -352,7 +417,7 @@ class Knife(Weapon):
   
   #figure out how to get the player pos values and assign them to the weapon when initialised.
   def __init__(self, x, y):
-    
+    self.damage = 10
     if keyboard.a:
       self.dirx = -1
     elif keyboard.d:
@@ -415,7 +480,7 @@ class Homing(Weapon):
         #closestmob = mob
 
       #print(y)
-    
+    self.damage = 10
     if x < mob.vposx:
       self.dirx = 1
     elif x > mob.vposx:
@@ -472,14 +537,64 @@ class Health(Powerup):
     
     x = random.randint(21,979)
     y = random.randint(26,975)
-    #self.posx = x
-    #self.posy = y
-    super().__init__("bat", x, y, 0)
+    
+    super().__init__("powerup_green", x, y, 0)
 
   def update(self,player):
-    #if (self.colliderect(player)):
+    
     if (self.colliderect(player)):
-      player.hurt(-50)
+      player.heal(50)
+      self.alive = False
+      
+    super().update(player)
+
+class Shield(Powerup):
+  def __init__(self):
+    
+    x = random.randint(21,979)
+    y = random.randint(26,975)
+    
+    super().__init__("powerup_blue", x, y, 0)
+
+  def update(self,player):
+    
+    if (self.colliderect(player)):
+      player.shield_timer = 200
+      player.shield = True
+      self.alive = False
+      
+    super().update(player)
+
+class Double_XP(Powerup):
+  def __init__(self):
+    
+    x = random.randint(21,979)
+    y = random.randint(26,975)
+    
+    super().__init__("powerup_yellow", x, y, 0)
+
+  def update(self,player):
+    
+    if (self.colliderect(player)):
+      player.Double_XP_timer = 200
+      player.Double_XP = True
+      self.alive = False
+      
+    super().update(player)
+
+class Strong_attacks(Powerup):
+  def __init__(self):
+    
+    x = random.randint(21,979)
+    y = random.randint(26,975)
+    
+    super().__init__("powerup_red", x, y, 0)
+
+  def update(self,player):
+    
+    if (self.colliderect(player)):
+      player.Strong_attacks_timer = 200
+      player.Strong_attacks = True
       self.alive = False
       
     super().update(player)
