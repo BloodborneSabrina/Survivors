@@ -3,7 +3,7 @@ import math, sys, random
 from constants import *
 
 ## global damage variable used by player and monsters (corresponds to how much damage weapons will do)
-Damage = 0
+
 class MyActor(Actor):
   def __init__(self,img,x,y,speed):
     self.myimg = img
@@ -67,8 +67,9 @@ class Player(MyActor):
     self.xp = 0
     self.level = 0
     self.xp_required = 600
-    #global Damage = 5
-    ##
+    global damage 
+    damage= 5
+
     self.shield_timer = 0 
     self.shield = False
 
@@ -132,11 +133,18 @@ class Player(MyActor):
 class Monster(MyActor):
   def __init__(self, img, posx, posy,spd):
     super().__init__(img, posx, posy, spd)
+    self.invuln = False
+    self.invuln_timer = 0
     self.alive = True
   def hurt(self):
-    self.health -= damage
-    if (self.health<=0):
-      self.alive = False
+    print(self.health)
+    if self.invuln == False:
+      self.health -= damage
+      self.invuln = True
+      self.invuln_timer = 10
+    #print(damage)
+
+    
   
   def update(self,player,knife):
     # Return vector representing amount of movement that should occur    
@@ -146,10 +154,16 @@ class Monster(MyActor):
       self.alive = False
 
     if (self.collidelist(knife)) != -1:
-      #self.hurt()
+      self.hurt()
+      #self.alive = False
+      #player.experience(25)
+    if self.invuln == True:
+        self.invuln_timer -= 1
+    if self.invuln_timer == 0:
+      self.invuln = False
+    if (self.health<=0):
       self.alive = False
       player.experience(25)
-      
       
       
 
