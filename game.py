@@ -11,8 +11,8 @@ class Game:
         self.monster = []
         self.powerups = []
         self.weapon = []
-        ## gamestate values correspond to: stronger attack toggle, faster attack toggle, xp pup toggle, shield toggle
-        ## self.gamestate = [0,0,0,0]
+
+        ## declaring variables for the time in game, gametime counts each tick and adds to seconds, seconds adds to waves.
         self.timer = 0
         self.gametime = 0
         self.wave = 0
@@ -29,31 +29,36 @@ class Game:
       if self.wave % 2 == 0:
         screen.blit("grassday2", (-offset_x, -offset_y))
       else:
-        # different map for time of day change. 
+        # different map image for time of day change. 
         screen.blit("grass-day", (-offset_x, -offset_y))
 
       hp_bar = int(self.player.health / 10)
       Xpbar = int(((self.player.xp / self.player.xp_required) * 100))
-      
+      ## show player with shield sprite if the shield powerup is active
+      if self.player.shield == True:
+        self.player.myimg = "playershield"
+      else:
+        self.player.myimg = "player"
+      ## draw player according to which sprite is selected beforehand
       self.player.draw(offset_x, offset_y)
+
+      ## draw hp bar above player, updated based on the proportion of the hp that is filled
       hp_status = "hp-" + str(hp_bar)
       screen.blit(hp_status, ((self.player.x - 10), (self.player.y - 10)))
+      ## draw xp bar on the bottom of the screen, Xpbar variable is the percentage of the bar that is filled split into 20, as there are 20 images for the bar
       xp_status = "xpbar_" + str(round(Xpbar*0.2))
       screen.blit(xp_status, (0, 0))
-      #print(round(Xpbar*0.2))
+      #print(round(Xpbar*0.2)) -- TESTING
+      ## draw each item in the list of monsters, powerups and attacks that are on screen
       for mob in self.monster:
         mob.draw(offset_x, offset_y)
 
-      for mob in self.weapon:
-        mob.draw(offset_x, offset_y)
+      for attack in self.weapon:
+        attack.draw(offset_x, offset_y)
 
-      for mob in self.powerups:
-        mob.draw(offset_x, offset_y)
+      for powerup in self.powerups:
+        powerup.draw(offset_x, offset_y)
 
-      #time = str(self.wave) + ":" + str(self.seconds)
-      #imgmins = "digit1" + str(self.wave)
-      #screen.blit(imgmins, (0, 0))
-      #for i in 
 
 
     
@@ -146,7 +151,7 @@ class Game:
           self.powerups.remove(pup)
 ##
 ##
-##
+## defining screencoords value for spawning entities
     def screencoords(self):
       left = int(max(0, min(LEVEL_W - WIDTH, self.player.vposx - WIDTH / 2)))
       top = int(max(0, min(LEVEL_H - HEIGHT, self.player.vposy - HEIGHT / 2)))

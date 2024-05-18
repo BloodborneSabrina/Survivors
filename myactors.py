@@ -61,7 +61,7 @@ class MyActor(Actor):
 
 class Player(MyActor):
   def __init__(self, x, y):
-    self.img = "princess"
+    self.img = "player"
     self.health = 100
     self.leveluptrigger = False
     self.xp = 0
@@ -79,14 +79,20 @@ class Player(MyActor):
     self.fast_attacks = False
     self.fast_attacks_timer = 0
     
+    
+
+
     super().__init__(self.img,x,y,self.speed)
 
   def update(self):
     # Return vector representing amount of movement that should occur
     #self.timer -= 1
     
+    
+
     if self.shield_timer == 0:
       self.shield = False
+      
     
     if self.fast_attacks_timer == 0:
       self.fast_attacks = False
