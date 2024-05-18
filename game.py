@@ -47,7 +47,7 @@ class Game:
       screen.blit(hp_status, ((self.player.x - 10), (self.player.y - 10)))
       ## draw xp bar on the bottom of the screen, Xpbar variable is the percentage of the bar that is filled split into 20, as there are 20 images for the bar
       xp_status = "xpbar_" + str(round(Xpbar*0.2))
-      screen.blit(xp_status, (0, 0))
+      screen.blit(xp_status, (0, 465))
       #print(round(Xpbar*0.2)) -- TESTING
       ## draw each item in the list of monsters, powerups and attacks that are on screen
       for mob in self.monster:
@@ -80,18 +80,22 @@ class Game:
     def update(self):
       self.player.update()
       ## powerup timers are reduced if they are activated, this occurs for each powerup.
+      #def powerup_timer_update(powerup):
       if self.player.shield == True:
         self.player.shield_timer -= 1
       if self.player.double_xp == True:
         self.player.double_xp_timer -= 1
       if self.player.fast_attacks == True:
         self.player.fast_attacks_timer -= 1
+      if self.player.homing_weapon == True:
+        self.player.homing_weapon_timer -= 1
       
       ## hp_bar = self.player.health / 10
       ## print(hp_bar)
       ## timer for internal stuff and second timer to count seconds
       self.timer += 1
       self.gametime += 1
+      print(len(self.monster))
       ## each time a second passes add one to the counter and begin counting again
       if (self.gametime == 60): 
         self.seconds += 1 
@@ -117,7 +121,7 @@ class Game:
         
         closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
         
-        if len(self.monster) < 125:
+        if len(self.monster) < 50:
           self.monster.append(Bat(self.screencoords(), self.wave))
         
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
@@ -125,26 +129,24 @@ class Game:
           self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
       ## checks to see if each mob has died and if so, remove it.
       if self.gametime == 40:
-        if len(self.monster) < 125:
+        if len(self.monster) < 50:
           self.monster.append(Totem(self.screencoords(), self.wave))
       if self.gametime == 59:
         Pup = [Health, Shield, Double_XP, Fast_attacks]
         self.powerups.append(random.choice(Pup)())
-        if len(self.monster) < 125:
+        if len(self.monster) < 50:
           self.monster.append(Lion(self.screencoords(), self.wave))
-      ##
-      ##
-      ##
-      for mob in self.monster:
-        
+      
+      
+      ##check if each entity had died and if so, remove them
+      for mob in self.monster: 
         mob.update(self.player, self.weapon)
         if (not mob.alive):
-          self.monster.remove(mob)     # checks to see if each weapon has died and if so, remove it.
+          self.monster.remove(mob)     
       for knife in self.weapon:
         knife.update()
         if (not knife.alive):
           self.weapon.remove(knife)
-      
       for pup in self.powerups:
         pup.update(self.player)
         if (not pup.alive):

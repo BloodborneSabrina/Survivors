@@ -67,7 +67,8 @@ class Player(MyActor):
     self.xp = 0
     self.level = 0
     self.xp_required = 600
-    #global damage 
+    self.upgrade_1 = 0
+    self.upgrade_2 = 0
     self.damage= 5
     
     self.speed = 4
@@ -78,7 +79,8 @@ class Player(MyActor):
     self.double_xp_timer = 0
     self.fast_attacks = False
     self.fast_attacks_timer = 0
-    
+    self.homing_weapon = False
+    self.homing_weapon_timer = 0
     
 
 
@@ -87,7 +89,6 @@ class Player(MyActor):
   def update(self):
     # Return vector representing amount of movement that should occur
     #self.timer -= 1
-    
     
 
     if self.shield_timer == 0:
