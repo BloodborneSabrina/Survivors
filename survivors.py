@@ -43,7 +43,7 @@ def update():
             
     elif state == State.PLAY:
         ## when player health hits 0 trigger game over state.
-        if game.player.health == 0:
+        if game.player.health <= 0:
             state = State.GAME_OVER
         ## when the player levels up trigger the pause state.
         if game.player.leveluptrigger == True:

@@ -1,6 +1,6 @@
 import pgzero, pgzrun, pygame
 import math, sys, random
-from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health , Shield , Double_XP , Strong_attacks
+from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health , Shield , Double_XP , Fast_attacks
 from constants import *
 from pygame.math import Vector2
 from enum import Enum
@@ -15,7 +15,7 @@ class Game:
         ## self.gamestate = [0,0,0,0]
         self.timer = 0
         self.gametime = 0
-        self.wave = 0 
+        self.wave = 0
         self.seconds = 0
 
 
@@ -33,11 +33,14 @@ class Game:
         screen.blit("grass-day", (-offset_x, -offset_y))
 
       hp_bar = int(self.player.health / 10)
-
+      Xpbar = int(((self.player.xp / self.player.xp_required) * 100))
+      
       self.player.draw(offset_x, offset_y)
       hp_status = "hp-" + str(hp_bar)
       screen.blit(hp_status, ((self.player.x - 10), (self.player.y - 10)))
-
+      xp_status = "xpbar_" + str(round(Xpbar*0.2))
+      screen.blit(xp_status, (0, 0))
+      #print(round(Xpbar*0.2))
       for mob in self.monster:
         mob.draw(offset_x, offset_y)
 
@@ -76,6 +79,9 @@ class Game:
         self.player.shield_timer -= 1
       if self.player.double_xp == True:
         self.player.double_xp_timer -= 1
+      if self.player.fast_attacks == True:
+        self.player.fast_attacks_timer -= 1
+      
       ## hp_bar = self.player.health / 10
       ## print(hp_bar)
       ## timer for internal stuff and second timer to count seconds
@@ -92,19 +98,38 @@ class Game:
 ## each time the timer hits 20 a new monster is added to self.monster, i.e another monster is spawned
 ## pass in wave value to monsters to spawn powered up mobs.
       if (self.timer == 20):
-        Pup = [Health, Shield, Double_XP, Strong_attacks]
+        self.timer = 0
+        
+        if self.player.fast_attacks == True:
+          closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
+          self.weapon.append(Knife(self.player.vposx, self.player.vposy))
+          if closestmob:
+            self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))
+        else:
+          pass
+      
+      if (self.gametime == 20):
         
         closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
-        self.timer = 0
-        self.monster.append(Lion(self.screencoords(), self.wave))
-        self.monster.append(Bat(self.screencoords(), self.wave))
-        self.monster.append(Totem(self.screencoords(), self.wave))
-        self.weapon.append(Knife(self.player.vposx, self.player.vposy))
-        self.powerups.append(random.choice(Pup)())
         
+        if len(self.monster) < 125:
+          self.monster.append(Bat(self.screencoords(), self.wave))
+        
+        self.weapon.append(Knife(self.player.vposx, self.player.vposy))
         if closestmob:
           self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
       ## checks to see if each mob has died and if so, remove it.
+      if self.gametime == 40:
+        if len(self.monster) < 125:
+          self.monster.append(Totem(self.screencoords(), self.wave))
+      if self.gametime == 59:
+        Pup = [Health, Shield, Double_XP, Fast_attacks]
+        self.powerups.append(random.choice(Pup)())
+        if len(self.monster) < 125:
+          self.monster.append(Lion(self.screencoords(), self.wave))
+      ##
+      ##
+      ##
       for mob in self.monster:
         
         mob.update(self.player, self.weapon)
@@ -119,7 +144,9 @@ class Game:
         pup.update(self.player)
         if (not pup.alive):
           self.powerups.remove(pup)
-
+##
+##
+##
     def screencoords(self):
       left = int(max(0, min(LEVEL_W - WIDTH, self.player.vposx - WIDTH / 2)))
       top = int(max(0, min(LEVEL_H - HEIGHT, self.player.vposy - HEIGHT / 2)))

@@ -67,30 +67,31 @@ class Player(MyActor):
     self.xp = 0
     self.level = 0
     self.xp_required = 600
-    global damage 
-    damage= 5
-
+    #global damage 
+    self.damage= 5
+    
+    self.speed = 4
+    #declaring variables for each powerup to accessn
     self.shield_timer = 0 
     self.shield = False
-
     self.double_xp = False
     self.double_xp_timer = 0
-
-    self.Strong_attacks = False
-    self.Strong_attacks_timer = 0
-
     self.fast_attacks = False
-    self.strong_attacks = False
+    self.fast_attacks_timer = 0
     
-    self.double_xp = False
-    super().__init__(self.img,x,y,5)
+    super().__init__(self.img,x,y,self.speed)
 
   def update(self):
     # Return vector representing amount of movement that should occur
     #self.timer -= 1
+    
     if self.shield_timer == 0:
       self.shield = False
     
+    if self.fast_attacks_timer == 0:
+      self.fast_attacks = False
+      
+    #print(self.damage)
 
 
     self.dx, self.dy = 0, 0
@@ -136,25 +137,24 @@ class Monster(MyActor):
     self.invuln = False
     self.invuln_timer = 0
     self.alive = True
-  def hurt(self):
-    print(self.health)
-    if self.invuln == False:
-      self.health -= damage
-      self.invuln = True
-      self.invuln_timer = 10
+  
     #print(damage)
 
     
-  
+  def hurt(self,dmg):
+      #print(self.health)
+      if self.invuln == False:
+        self.health -= dmg
+        self.invuln = True
+        self.invuln_timer = 10
+
   def update(self,player,knife):
     # Return vector representing amount of movement that should occur    
     super().update()   
-    if (self.colliderect(player)):
-      player.hurt(self.damage)
-      self.alive = False
+    
 
     if (self.collidelist(knife)) != -1:
-      self.hurt()
+      self.hurt(player.damage)
       #self.alive = False
       #player.experience(25)
     if self.invuln == True:
@@ -164,8 +164,13 @@ class Monster(MyActor):
     if (self.health<=0):
       self.alive = False
       player.experience(25)
-      
-      
+    
+    
+    if (self.colliderect(player)):
+        player.hurt(self.damage)
+        self.alive = False      
+
+    
 
 class Bat(Monster):
   def __init__(self, screencoords, wave):
@@ -174,9 +179,11 @@ class Bat(Monster):
     if self.mode % 2 == 0:
       self.damage = 10
       self.health = 10
+      self.speed = 0.7
     else:
       self.damage = 15
       self.health = 20
+      self.speed = 1
 
     LEFT = 0
     TOP = 1
@@ -200,7 +207,7 @@ class Bat(Monster):
       posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
 
-    super().__init__("bat", posx, posy, 1)
+    super().__init__("bat", posx, posy, self.speed)
   
   #def hurt(self):
     #self.health -= self.player.damage
@@ -209,33 +216,23 @@ class Bat(Monster):
 
   def update(self,player,knife): 
     # if self.wave = even:
-    if self.mode % 2 == 0:
-      if (self.vposx > player.vposx):
-        self.dx = -1
-      elif (self.vposx < player.vposx):
-        self.dx = 1
-      else:
-        self.dx = 0
-      if (self.vposy > player.vposy):
-        self.dy = -0.75
-      elif (self.vposy < player.vposy):
-        self.dy = 0.75
-      else:
-        self.dy = 0
-      # if self.wave = odd:
+    
+    if (self.vposx > player.vposx):
+      self.dx = -1
+    elif (self.vposx < player.vposx):
+      self.dx = 1
     else:
-      if (self.vposx > player.vposx):
-        self.dx = -1.3
-      elif (self.vposx < player.vposx):
-        self.dx = 1.3
-      else:
-        self.dx = 0
-      if (self.vposy > player.vposy):
-        self.dy = -1
-      elif (self.vposy < player.vposy):
-        self.dy = 1
-      else:
-        self.dy = 0
+      self.dx = 0
+    if (self.vposy > player.vposy):
+      self.dy = -0.5
+    elif (self.vposy < player.vposy):
+      self.dy = 0.5
+    else:
+      self.dy = 0
+      # if self.wave = odd:
+    
+      #print(self.health)
+    
     
 
     
@@ -276,7 +273,7 @@ class Lion(Monster):
     elif (side == BOTTOM):
       posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
-    super().__init__("bat", posx, posy, 3)
+    super().__init__("bat", posx, posy, 2)
 
   
       
@@ -288,42 +285,27 @@ class Lion(Monster):
       self.movementTimer = 0
     # if self.wave = even:
     
-    if self.mode % 2 == 0:
-      if self.movementTimer > 31:
-        if (self.vposx > player.vposx):
-          self.dx = -1
-        elif (self.vposx < player.vposx):
-          self.dx = 1
-        else:
-          self.dx = 0
-        if (self.vposy > player.vposy):
-          self.dy = -0.75
-        elif (self.vposy < player.vposy):
-          self.dy = 0.75
-        else:
-          self.dy = 0
+    
+    if self.movementTimer > 31:
+      if (self.vposx > player.vposx):
+        self.dx = -1
+      elif (self.vposx < player.vposx):
+        self.dx = 1
+      else:
+        self.dx = 0
+      if (self.vposy > player.vposy):
+        self.dy = -0.75
+      elif (self.vposy < player.vposy):
+        self.dy = 0.75
       else:
         self.dy = 0
-        self.dx = 0
+    else:
+      self.dy = 0
+      self.dx = 0
     # if self.wave = odd:
-    else: 
-      if self.movementTimer > 31:
-        if (self.vposx > player.vposx):
-          self.dx = -2
-        elif (self.vposx < player.vposx):
-          self.dx = 2
-        else:
-          self.dx = 0
-        if (self.vposy > player.vposy):
-          self.dy = -1.5
-        elif (self.vposy < player.vposy):
-          self.dy = 1.5
-        else:
-          self.dy = 0
-      else:
-        self.dy = 0
-        self.dx = 0
-
+  
+    
+    
     
 
     super().update(player,knife)  
@@ -361,7 +343,7 @@ class Totem(Monster):
     elif (side == BOTTOM):
       posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
-    super().__init__("bat", posx, posy, 3)
+    super().__init__("bat", posx, posy, 2)
 
 
   
@@ -370,7 +352,7 @@ class Totem(Monster):
     #distance from player = square root of ((x of object - x of player)squared + (y of object - y of player)squared)
     self.distance = math.sqrt(((self.vposx - player.vposx) ** 2) + ((self.vposy - player.vposy) ** 2))
     
-
+    
     # adjust this value to choose how close the mob should be before it moves towards the player.
     # if distance from the player is short enough the mob will move towards player as usual.
     # if mode is even
@@ -383,9 +365,9 @@ class Totem(Monster):
         else:
           self.dx = 0
         if (self.vposy > player.vposy):
-          self.dy = -0.75
+          self.dy = -0.5
         elif (self.vposy < player.vposy):
-          self.dy = 0.75
+          self.dy = 0.5
         else:
           self.dy = 0
       else:
@@ -596,7 +578,7 @@ class Double_XP(Powerup):
       
     super().update(player)
 
-class Strong_attacks(Powerup):
+class Fast_attacks(Powerup):
   def __init__(self):
     
     x = random.randint(21,979)
@@ -607,8 +589,9 @@ class Strong_attacks(Powerup):
   def update(self,player):
     
     if (self.colliderect(player)):
-      player.Strong_attacks_timer = 200
-      player.Strong_attacks = True
+      player.fast_attacks_timer = 200
+      player.fast_attacks = True
+      
       self.alive = False
       
     super().update(player)
