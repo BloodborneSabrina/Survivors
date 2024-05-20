@@ -66,11 +66,11 @@ class Player(MyActor):
     self.leveluptrigger = False
     self.xp = 0
     self.level = 0
-    self.xp_required = 600
-    self.upgrade_1 = 0
-    self.upgrade_2 = 0
+    self.xp_required = 400
+    self.upgrade_self = 0
+    self.upgrade_weapon = 0
     self.damage= 5
-    
+    self.homing_flag = False
     self.speed = 4
     #declaring variables for each powerup to accessn
     self.shield_timer = 0 
@@ -86,19 +86,34 @@ class Player(MyActor):
 
     super().__init__(self.img,x,y,self.speed)
 
+  
   def update(self):
     # Return vector representing amount of movement that should occur
     #self.timer -= 1
+  
+    if self.upgrade_self >= 1:
+      self.speed = 5
+
+    if self.upgrade_self >= 3:
+      self.speed = 7
+
+    if self.upgrade_weapon >= 1:
+      self.damage = 7
+
+    if self.upgrade_weapon >= 3:
+      self.damage = 10
+    if self.upgrade_weapon >= 4:
+      self.homing_flag = True
     
 
     if self.shield_timer == 0:
       self.shield = False
-      
-    
     if self.fast_attacks_timer == 0:
       self.fast_attacks = False
+    if self.homing_weapon_timer == 0:
+      self.homing_weapon = False
       
-    #print(self.damage)
+    #print(self.damage) -- TESTING
 
 
     self.dx, self.dy = 0, 0
@@ -133,9 +148,12 @@ class Player(MyActor):
     if self.xp > self.xp_required:
       self.level += 1
       
-      self.xp_required = (self.xp_required * 1.6)
+      self.xp_required = (self.xp_required * 1.3)
       self.xp = 0
-      self.leveluptrigger = True
+      if self.upgrade_self and self.upgrade_weapon == 5:
+        pass
+      else:
+        self.leveluptrigger = True
       #print(self.xp_required)
       #print("lvl" + str(self.level))
 class Monster(MyActor):
@@ -175,7 +193,8 @@ class Monster(MyActor):
     
     if (self.colliderect(player)):
         player.hurt(self.damage)
-        self.alive = False      
+        if player.shield == False:
+          self.alive = False      
 
     
 
@@ -184,13 +203,13 @@ class Bat(Monster):
     self.mode = wave
     # if self.wave = even:
     if self.mode % 2 == 0:
-      self.damage = 10
-      self.health = 10
-      self.speed = 0.7
+      self.damage = (5 + wave)
+      self.health = (10 + wave)
+      self.speed = (0.65 + wave * 0.1)
     else:
-      self.damage = 15
-      self.health = 20
-      self.speed = 1
+      self.damage = (9 + wave)
+      self.health = (20 + wave)
+      self.speed = (0.9 + wave * 0.1)
 
     LEFT = 0
     TOP = 1
@@ -252,11 +271,14 @@ class Lion(Monster):
     self.mode = wave
     # if self.wave = even:
     if self.mode % 2 == 0:
-      self.damage = 10
-      self.health = 10
+      self.damage = (6 + wave)
+      self.health = (8 + wave)
+      self.speed = (1 + wave * 0.1)
     else:
-      self.damage = 20
-      self.health = 15
+      self.damage = (10 + wave)
+      self.health = (13 + wave)
+      self.speed = (1.4 + wave * 0.1)
+
     self.movementTimer = 0
 
     LEFT = 0
@@ -280,7 +302,7 @@ class Lion(Monster):
     elif (side == BOTTOM):
       posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
-    super().__init__("bat", posx, posy, 2)
+    super().__init__("bat", posx, posy, self.speed)
 
   
       
@@ -323,11 +345,13 @@ class Totem(Monster):
     self.mode = wave
     # if self.wave = even:
     if self.mode % 2 == 0:
-      self.damage = 15
-      self.health = 15
+      self.damage = (10 + wave)
+      self.health = (10 + wave)
+      self.speed = (1.5 + wave * 0.1)
     else:
-      self.damage = 15
-      self.health = 30
+      self.damage = (14 + wave)
+      self.health = (20 + wave)
+      self.speed = (2 + wave * 0.1)
 
     LEFT = 0
     TOP = 1
@@ -350,7 +374,7 @@ class Totem(Monster):
     elif (side == BOTTOM):
       posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
-    super().__init__("bat", posx, posy, 2)
+    super().__init__("bat", posx, posy, self.speed)
 
 
   
@@ -562,6 +586,8 @@ class Shield(Powerup):
   def update(self,player):
     
     if (self.colliderect(player)):
+      if player.upgrade_self >= 4:
+        player.shield_timer = 300
       player.shield_timer = 200
       player.shield = True
       self.alive = False
@@ -579,6 +605,8 @@ class Double_XP(Powerup):
   def update(self,player):
     
     if (self.colliderect(player)):
+      if player.upgrade_self >= 4:
+        player.Double_XP_timer = 400
       player.Double_XP_timer = 200
       player.Double_XP = True
       self.alive = False
@@ -596,6 +624,8 @@ class Fast_attacks(Powerup):
   def update(self,player):
     
     if (self.colliderect(player)):
+      if player.upgrade_self >= 4:
+        player.fast_attacks_timer = 400
       player.fast_attacks_timer = 200
       player.fast_attacks = True
       
@@ -603,6 +633,24 @@ class Fast_attacks(Powerup):
       
     super().update(player)
 
+class Homing_weapon(Powerup):
+  def __init__(self):
+    
+    x = random.randint(21,979)
+    y = random.randint(26,975)
+    
+    super().__init__("powerup_pink", x, y, 0)
+
+  def update(self,player):
+    
+    if (self.colliderect(player)):
+      if player.upgrade_self >= 4:
+        player.fast_attacks_timer = 400
+      player.homing_weapon_timer = 200
+      player.homing_weapon = True
+      self.alive = False
+      
+    super().update(player)
 #min vposy =26:
 #max vposy = 1374:
 #max vposx = 979:     

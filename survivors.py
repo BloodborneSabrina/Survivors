@@ -57,15 +57,22 @@ def update():
     ## print("pausa")
     ## if space_pressed:
     ## Reset to menu state
-    ## state = State.PLAYaddddaaasa
-        
+    ## state = State.PLAY
+
+        ## depending on the upgrade selected increase the upgrade value and return to normal gameplay, if all upgrades are unlocked, they must choose the other upgrade.
         if keyboard.K_1:
-
-            state = State.PLAY
-
+            if game.player.upgrade_self <= 3:
+                game.player.upgrade_self += 1
+                state = State.PLAY
+            else:
+                pass
+        
         if keyboard.K_2:
-
-            state = State.PLAY
+            if game.player.upgrade_weapon <= 3:
+                game.player.upgrade_weapon += 1
+                state = State.PLAY
+            else:
+                pass
 
 
 
@@ -84,6 +91,29 @@ def draw():
         screen.blit("menu", (0,0))
     if state == State.PAUSED:
         screen.blit("upgrade_menu", (0,0))
+
+        if game.player.upgrade_weapon == 0:
+            screen.draw.text("Increase weapon damage", (456,258))
+        elif game.player.upgrade_weapon == 1:
+            screen.draw.text("Increase fire rate", (456,258))
+        elif game.player.upgrade_weapon == 2:
+            screen.draw.text("Increase weapon damage", (456,258))
+        elif game.player.upgrade_weapon == 3:
+            screen.draw.text("Add homing weapon permanently", (456,258))
+        elif game.player.upgrade_weapon == 4:
+            screen.draw.text("all upgrades earned", (456,258))
+
+        if game.player.upgrade_self == 0:
+            screen.draw.text("Increase player speed", (56,258))
+        elif game.player.upgrade_self == 1:
+            screen.draw.text("Increase powerup spawn rate", (56,258))
+        elif game.player.upgrade_self == 2:
+            screen.draw.text("Further Increase player speed", (56,258))
+        elif game.player.upgrade_self == 3:
+            screen.draw.text("Increase duration of powerups", (56,258))
+        elif game.player.upgrade_self == 4:
+            screen.draw.text("All upgrades earned", (56,258))
+
     elif state == State.GAME_OVER: 
         screen.blit("game_over", (0,0))
 

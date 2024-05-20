@@ -1,6 +1,6 @@
 import pgzero, pgzrun, pygame
 import math, sys, random
-from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health , Shield , Double_XP , Fast_attacks
+from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health , Shield , Double_XP , Fast_attacks , Homing_weapon
 from constants import *
 from pygame.math import Vector2
 from enum import Enum
@@ -17,6 +17,7 @@ class Game:
         self.gametime = 0
         self.wave = 0
         self.seconds = 0
+        self.night = False
 
 
         
@@ -78,7 +79,12 @@ class Game:
 
     # updates will only happen when the game is NOT in the pause state which is triggered every time the player levels up and can upgrade or acquire a weapon. 
     def update(self):
+      # if self.wave = even:
+      if self.wave % 2 == 0:
+        self.night == False
+      else:self.night == True
       self.player.update()
+      Pup = [Health, Shield, Double_XP, Fast_attacks , Homing_weapon]
       ## powerup timers are reduced if they are activated, this occurs for each powerup.
       #def powerup_timer_update(powerup):
       if self.player.shield == True:
@@ -88,8 +94,9 @@ class Game:
       if self.player.fast_attacks == True:
         self.player.fast_attacks_timer -= 1
       if self.player.homing_weapon == True:
-        self.player.homing_weapon_timer -= 1
-      
+        if self.player.homing_flag == False:
+          self.player.homing_weapon_timer -= 1
+      closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
       ## hp_bar = self.player.health / 10
       ## print(hp_bar)
       ## timer for internal stuff and second timer to count seconds
@@ -110,29 +117,48 @@ class Game:
         self.timer = 0
         
         if self.player.fast_attacks == True:
-          closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
           self.weapon.append(Knife(self.player.vposx, self.player.vposy))
-          if closestmob:
+        if closestmob and self.player.homing_flag == True:
             self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))
+        if closestmob and self.player.homing_weapon == True:
+          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))
         else:
           pass
       
+      if (self.timer == 10):
+        if self.player.upgrade_weapon >= 2:
+          self.weapon.append(Knife(self.player.vposx, self.player.vposy))
+          if closestmob and self.player.homing_flag == True:
+            self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))
+
       if (self.gametime == 20):
-        
-        closestmob = self.findClosest(self.monster, self.player.vposx, self.player.vposy)
-        
-        if len(self.monster) < 50:
-          self.monster.append(Bat(self.screencoords(), self.wave))
-        
         self.weapon.append(Knife(self.player.vposx, self.player.vposy))
-        if closestmob:
-          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))      
+        if closestmob and self.player.homing_flag == True:
+          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))
+        if closestmob and self.player.homing_weapon == True:
+          self.weapon.append(Homing(self.player.vposx, self.player.vposy, closestmob))   
+
+        if self.night == False:
+          if len(self.monster) < 50:
+            self.monster.append(Bat(self.screencoords(), self.wave))
+          else:
+            if len(self.monster) < 75:
+              self.monster.append(Bat(self.screencoords(), self.wave))
+        
+        
+      
       ## checks to see if each mob has died and if so, remove it.
       if self.gametime == 40:
-        if len(self.monster) < 50:
-          self.monster.append(Totem(self.screencoords(), self.wave))
+        if self.player.upgrade_self >= 2:
+          self.powerups.append(random.choice(Pup)())
+        if self.night == False:
+          if len(self.monster) < 50:
+            self.monster.append(Totem(self.screencoords(), self.wave))
+          else:
+            self.monster.append(Totem(self.screencoords(), self.wave))
+            self.monster.append(Totem(self.screencoords(), self.wave))
       if self.gametime == 59:
-        Pup = [Health, Shield, Double_XP, Fast_attacks]
+        
         self.powerups.append(random.choice(Pup)())
         if len(self.monster) < 50:
           self.monster.append(Lion(self.screencoords(), self.wave))
