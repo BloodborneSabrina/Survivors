@@ -150,7 +150,7 @@ class Player(MyActor):
       
       self.xp_required = (self.xp_required * 1.3)
       self.xp = 0
-      if self.upgrade_self and self.upgrade_weapon == 5:
+      if self.upgrade_self and self.upgrade_weapon == 4:
         pass
       else:
         self.leveluptrigger = True
@@ -258,7 +258,12 @@ class Bat(Monster):
       # if self.wave = odd:
     
       #print(self.health)
-    
+    if self.invuln == True:
+      self.myimg = "bat_invuln"
+    else:
+      self.myimg = "bat"
+
+
     
 
     
@@ -266,7 +271,7 @@ class Bat(Monster):
     super().update(player,knife)   
 
 
-class Lion(Monster):
+class Armor(Monster):
   def __init__(self, screencoords, wave):
     self.mode = wave
     # if self.wave = even:
@@ -302,7 +307,7 @@ class Lion(Monster):
     elif (side == BOTTOM):
       posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
-    super().__init__("bat", posx, posy, self.speed)
+    super().__init__("armor", posx, posy, self.speed)
 
   
       
@@ -331,15 +336,18 @@ class Lion(Monster):
     else:
       self.dy = 0
       self.dx = 0
-    # if self.wave = odd:
-  
+    ## If the mob has invincibility, show damaged sprite, otherwise keep regular sprite
+    if self.invuln == True:
+      self.myimg = "armor_invuln"
+    else:
+      self.myimg = "armor"
     
     
     
 
     super().update(player,knife)  
 
-class Totem(Monster):
+class Princess(Monster):
 
   def __init__(self, screencoords, wave):
     self.mode = wave
@@ -374,7 +382,7 @@ class Totem(Monster):
     elif (side == BOTTOM):
       posx = random.randint(screencoords[LEFT],screencoords[RIGHT])
       posy = min(screencoords[BOTTOM] + 50, LEVEL_H)
-    super().__init__("bat", posx, posy, self.speed)
+    super().__init__("princess", posx, posy, self.speed)
 
 
   
@@ -422,7 +430,11 @@ class Totem(Monster):
       else:
         self.dy = 0
         self.dx = 0
-
+    ## If the mob has invincibility, show damaged sprite, otherwise keep regular sprite
+    if self.invuln == True:
+      self.myimg = "princess_invuln"
+    else:
+      self.myimg = "princess"
 
     super().update(player,knife) 
 

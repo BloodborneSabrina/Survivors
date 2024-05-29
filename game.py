@@ -1,6 +1,6 @@
 import pgzero, pgzrun, pygame
 import math, sys, random
-from myactors import Player, Monster, Bat, Weapon, Knife, Lion , Totem , Homing , Powerup , Health , Shield , Double_XP , Fast_attacks , Homing_weapon
+from myactors import Player, Monster, Bat, Weapon, Knife, Armor , Princess , Homing , Powerup , Health , Shield , Double_XP , Fast_attacks , Homing_weapon
 from constants import *
 from pygame.math import Vector2
 from enum import Enum
@@ -40,6 +40,8 @@ class Game:
         self.player.myimg = "playershield"
       else:
         self.player.myimg = "player"
+
+      
       ## draw player according to which sprite is selected beforehand
       self.player.draw(offset_x, offset_y)
 
@@ -53,6 +55,7 @@ class Game:
       ## draw each item in the list of monsters, powerups and attacks that are on screen
       for mob in self.monster:
         mob.draw(offset_x, offset_y)
+        
 
       for attack in self.weapon:
         attack.draw(offset_x, offset_y)
@@ -153,15 +156,15 @@ class Game:
           self.powerups.append(random.choice(Pup)())
         if self.night == False:
           if len(self.monster) < 50:
-            self.monster.append(Totem(self.screencoords(), self.wave))
+            self.monster.append(Princess(self.screencoords(), self.wave))
           else:
-            self.monster.append(Totem(self.screencoords(), self.wave))
-            self.monster.append(Totem(self.screencoords(), self.wave))
+            self.monster.append(Princess(self.screencoords(), self.wave))
+            self.monster.append(Armor(self.screencoords(), self.wave))
       if self.gametime == 59:
         
         self.powerups.append(random.choice(Pup)())
         if len(self.monster) < 50:
-          self.monster.append(Lion(self.screencoords(), self.wave))
+          self.monster.append(Armor(self.screencoords(), self.wave))
       
       
       ##check if each entity had died and if so, remove them
